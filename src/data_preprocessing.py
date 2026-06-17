@@ -2,20 +2,40 @@ import numpy as np
 import pandas as pd
 import os
 import re
+import logging
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
+logger = logging.getLogger(__name__)
+
+
+def _setup_logging() -> None:
+    os.makedirs("logs", exist_ok=True)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    if not root_logger.handlers:
+        fmt = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        sh = logging.StreamHandler()
+        sh.setFormatter(fmt)
+        fh = logging.FileHandler(os.path.join("logs", "pipeline.log"))
+        fh.setFormatter(fmt)
+        root_logger.addHandler(sh)
+        root_logger.addHandler(fh)
+
 
 def download_nltk_resources():
+    logger.debug("Downloading NLTK resources")
     try:
         nltk.download('wordnet', quiet=True)
         nltk.download('stopwords', quiet=True)
+        logger.debug("NLTK resources downloaded successfully")
     except Exception as e:
         raise RuntimeError(f"Failed to download NLTK resources: {e}")
 
 
 def load_data(raw_data_path: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+    logger.debug("Loading raw data from %s", raw_data_path)
     try:
         train_path = os.path.join(raw_data_path, "train.csv")
         test_path = os.path.join(raw_data_path, "test.csv")
@@ -25,6 +45,7 @@ def load_data(raw_data_path: str) -> tuple[pd.DataFrame, pd.DataFrame]:
             raise FileNotFoundError(f"Test file not found: {test_path}")
         train_data = pd.read_csv(train_path)
         test_data = pd.read_csv(test_path)
+        logger.debug("Loaded train shape=%s, test shape=%s", train_data.shape, test_data.shape)
         return train_data, test_data
     except FileNotFoundError:
         raise
@@ -81,11 +102,13 @@ def removing_urls(text: str) -> str:
 
 
 def remove_small_sentences(df: pd.DataFrame) -> pd.DataFrame:
+    logger.debug("Removing small sentences, input shape=%s", df.shape)
     try:
         if 'text' not in df.columns:
             raise ValueError("Column 'text' not found in DataFrame")
         mask = df['text'].apply(lambda t: len(str(t).split()) < 3)
         df.loc[mask, 'text'] = np.nan
+        logger.debug("Removed %d small sentences", mask.sum())
         return df
     except ValueError:
         raise
@@ -94,6 +117,7 @@ def remove_small_sentences(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def normalize_text(df: pd.DataFrame) -> pd.DataFrame:
+    logger.debug("Normalizing text, input shape=%s", df.shape)
     try:
         if 'content' not in df.columns:
             raise ValueError("Column 'content' not found in DataFrame")
@@ -106,7 +130,9 @@ def normalize_text(df: pd.DataFrame) -> pd.DataFrame:
             lemmatization,
         ]
         for step in pipeline:
+            logger.debug("Applying text step: %s", step.__name__)
             df['content'] = df['content'].apply(step)
+        logger.debug("Text normalization complete, output shape=%s", df.shape)
         return df
     except ValueError:
         raise
@@ -115,25 +141,31 @@ def normalize_text(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def save_data(train: pd.DataFrame, test: pd.DataFrame, processed_data_path: str) -> None:
+    logger.debug("Saving processed data to %s", processed_data_path)
     try:
         os.makedirs(processed_data_path, exist_ok=True)
         train.to_csv(os.path.join(processed_data_path, "train_processed.csv"), index=False)
         test.to_csv(os.path.join(processed_data_path, "test_processed.csv"), index=False)
+        logger.info("Processed data saved to %s", processed_data_path)
     except OSError as e:
         raise OSError(f"Failed to save processed data to {processed_data_path}: {e}")
 
 
 def main():
+    _setup_logging()
     raw_data_path = os.path.join("data", "raw")
     processed_data_path = os.path.join("data", "processed")
 
     try:
+        logger.info("Starting data preprocessing")
         download_nltk_resources()
         train_data, test_data = load_data(raw_data_path)
         train_processed = normalize_text(train_data)
         test_processed = normalize_text(test_data)
         save_data(train_processed, test_processed, processed_data_path)
-    except (FileNotFoundError, ValueError, RuntimeError, OSError):
+        logger.info("Data preprocessing completed successfully.")
+    except (FileNotFoundError, ValueError, RuntimeError, OSError) as e:
+        logger.error("Data preprocessing failed: %s", e)
         raise
 
 

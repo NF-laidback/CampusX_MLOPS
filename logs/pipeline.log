@@ -1,0 +1,75 @@
+2026-06-18 01:09:36,353 - __main__ - INFO - Starting data ingestion
+2026-06-18 01:09:36,353 - __main__ - DEBUG - Loading params from params.yaml
+2026-06-18 01:09:36,353 - __main__ - DEBUG - Loaded test_size=0.20
+2026-06-18 01:09:36,353 - __main__ - DEBUG - Loading data from https://raw.githubusercontent.com/campusx-official/jupyter-masterclass/main/tweet_emotions.csv
+2026-06-18 01:09:37,749 - __main__ - DEBUG - Loaded DataFrame with shape (40000, 3)
+2026-06-18 01:09:37,752 - __main__ - DEBUG - Dropped 'tweet_id' column
+2026-06-18 01:09:37,752 - __main__ - DEBUG - Filtering and encoding sentiments, input shape=(40000, 2)
+2026-06-18 01:09:37,755 - __main__ - DEBUG - Filtered DataFrame shape=(10374, 2)
+2026-06-18 01:09:37,755 - __main__ - DEBUG - Splitting data with test_size=0.20
+2026-06-18 01:09:37,756 - __main__ - DEBUG - Train shape=(8299, 2), Test shape=(2075, 2)
+2026-06-18 01:09:37,756 - __main__ - DEBUG - Saving data to data/raw
+2026-06-18 01:09:37,767 - __main__ - INFO - Data saved to data/raw
+2026-06-18 01:09:37,767 - __main__ - INFO - Data ingestion completed successfully.
+2026-06-18 01:09:39,015 - __main__ - INFO - Starting data preprocessing
+2026-06-18 01:09:39,015 - __main__ - DEBUG - Downloading NLTK resources
+2026-06-18 01:09:39,139 - __main__ - DEBUG - NLTK resources downloaded successfully
+2026-06-18 01:09:39,139 - __main__ - DEBUG - Loading raw data from data/raw
+2026-06-18 01:09:39,147 - __main__ - DEBUG - Loaded train shape=(8299, 2), test shape=(2075, 2)
+2026-06-18 01:09:39,147 - __main__ - DEBUG - Normalizing text, input shape=(8299, 2)
+2026-06-18 01:09:39,147 - __main__ - DEBUG - Applying text step: lower_case
+2026-06-18 01:09:39,158 - __main__ - DEBUG - Applying text step: remove_stop_words
+2026-06-18 01:09:40,226 - __main__ - DEBUG - Applying text step: removing_numbers
+2026-06-18 01:09:40,239 - __main__ - DEBUG - Applying text step: removing_punctuations
+2026-06-18 01:09:40,265 - __main__ - DEBUG - Applying text step: removing_urls
+2026-06-18 01:09:40,269 - __main__ - DEBUG - Applying text step: lemmatization
+2026-06-18 01:09:41,303 - __main__ - DEBUG - Text normalization complete, output shape=(8299, 2)
+2026-06-18 01:09:41,303 - __main__ - DEBUG - Normalizing text, input shape=(2075, 2)
+2026-06-18 01:09:41,303 - __main__ - DEBUG - Applying text step: lower_case
+2026-06-18 01:09:41,305 - __main__ - DEBUG - Applying text step: remove_stop_words
+2026-06-18 01:09:41,519 - __main__ - DEBUG - Applying text step: removing_numbers
+2026-06-18 01:09:41,523 - __main__ - DEBUG - Applying text step: removing_punctuations
+2026-06-18 01:09:41,530 - __main__ - DEBUG - Applying text step: removing_urls
+2026-06-18 01:09:41,531 - __main__ - DEBUG - Applying text step: lemmatization
+2026-06-18 01:09:41,556 - __main__ - DEBUG - Text normalization complete, output shape=(2075, 2)
+2026-06-18 01:09:41,556 - __main__ - DEBUG - Saving processed data to data/processed
+2026-06-18 01:09:41,567 - __main__ - INFO - Processed data saved to data/processed
+2026-06-18 01:09:41,569 - __main__ - INFO - Data preprocessing completed successfully.
+2026-06-18 01:09:42,655 - __main__ - INFO - Starting feature engineering
+2026-06-18 01:09:42,656 - __main__ - DEBUG - Loading params from params.yaml
+2026-06-18 01:09:42,657 - __main__ - DEBUG - Loaded max_features=1000
+2026-06-18 01:09:42,657 - __main__ - DEBUG - Loading processed data from data/processed
+2026-06-18 01:09:42,662 - __main__ - DEBUG - Loaded train shape=(8299, 2), test shape=(2075, 2)
+2026-06-18 01:09:42,662 - __main__ - DEBUG - Preparing features from DataFrames
+2026-06-18 01:09:42,663 - __main__ - DEBUG - Train samples=8298, Test samples=2074
+2026-06-18 01:09:42,663 - __main__ - DEBUG - Applying Bag-of-Words with max_features=1000
+2026-06-18 01:09:42,704 - __main__ - DEBUG - BoW train shape=(8298, 1000), test shape=(2074, 1000)
+2026-06-18 01:09:42,704 - __main__ - DEBUG - Building feature DataFrames
+2026-06-18 01:09:42,731 - __main__ - DEBUG - Feature train shape=(8298, 1001), test shape=(2074, 1001)
+2026-06-18 01:09:42,731 - __main__ - DEBUG - Saving feature files to data/feature_engineered
+2026-06-18 01:09:43,392 - __main__ - INFO - Feature files saved to data/feature_engineered
+2026-06-18 01:09:43,393 - __main__ - INFO - Feature engineering completed successfully.
+2026-06-18 01:09:44,408 - __main__ - INFO - Starting model building
+2026-06-18 01:09:44,408 - __main__ - DEBUG - Loading params from params.yaml
+2026-06-18 01:09:44,408 - __main__ - DEBUG - Loaded model_building params: {'n_estimators': 500, 'learning_rate': 0.05}
+2026-06-18 01:09:44,408 - __main__ - DEBUG - Loading feature data from data/feature_engineered
+2026-06-18 01:09:44,570 - __main__ - DEBUG - Loaded feature DataFrame with shape (8298, 1001)
+2026-06-18 01:09:44,570 - __main__ - DEBUG - Preparing training features
+2026-06-18 01:09:44,573 - __main__ - DEBUG - X_train shape=(8298, 1000), y_train shape=(8298,)
+2026-06-18 01:09:44,573 - __main__ - DEBUG - Training XGBClassifier with params: {'n_estimators': 500, 'learning_rate': 0.05}
+2026-06-18 01:09:46,104 - __main__ - INFO - Model training complete
+2026-06-18 01:09:46,104 - __main__ - DEBUG - Saving model to models
+2026-06-18 01:09:46,106 - __main__ - INFO - Model saved to models/xgb_model.pkl
+2026-06-18 01:09:46,106 - __main__ - INFO - Model building completed successfully.
+2026-06-18 01:09:47,033 - __main__ - INFO - Starting model evaluation
+2026-06-18 01:09:47,033 - __main__ - DEBUG - Loading model from models/xgb_model.pkl
+2026-06-18 01:09:47,053 - __main__ - DEBUG - Model loaded successfully
+2026-06-18 01:09:47,053 - __main__ - DEBUG - Loading test data from data/feature_engineered
+2026-06-18 01:09:47,095 - __main__ - DEBUG - Loaded test DataFrame with shape (2074, 1001)
+2026-06-18 01:09:47,095 - __main__ - DEBUG - Preparing test features
+2026-06-18 01:09:47,098 - __main__ - DEBUG - X_test shape=(2074, 1000), y_test shape=(2074,)
+2026-06-18 01:09:47,098 - __main__ - DEBUG - Evaluating model on test set
+2026-06-18 01:09:47,167 - __main__ - INFO - Evaluation metrics: {'accuracy': 0.7719382835101254, 'precision': 0.7911733046286329, 'recall': 0.7248520710059172, 'auc': 0.8585031260466673}
+2026-06-18 01:09:47,167 - __main__ - DEBUG - Saving metrics to metrics.json
+2026-06-18 01:09:47,167 - __main__ - INFO - Metrics saved to metrics.json
+2026-06-18 01:09:47,167 - __main__ - INFO - Model evaluation completed successfully.
